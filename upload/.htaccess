@@ -1,0 +1,85 @@
+<IfModule mod_rewrite.c>
+#### No permitir obtener caracteristicas del servidor
+ServerSignature Off
+#### No permitir el listado de archivos
+Options All -Indexes
+#### Permitir el acceso a otras carpetas desde el sitio
+Options +FollowSymLinks 
+#### Si la ruta y el archivo solicitados no es /index.php y la solicitud aún no se ha reescrito internamente en el script index.php
+RewriteCond %{REQUEST_URI} !^/index\.php
+#### y la solicitud es para root, o para una URL sin extensión, o la URL solicitada termina con una de las extensiones enumeradas
+RewriteCond %{REQUEST_URI} /component/|(/[^.]*|\.(php|html?|feed|pdf|vcf|raw))$ [NC]
+####  y la ruta y el archivo solicitados no coinciden directamente con un archivo físico 
+RewriteCond %{REQUEST_FILENAME} !-f
+####  y la ruta y el archivo solicitados no coinciden directamente con una carpeta física 
+RewriteCond %{REQUEST_FILENAME} !-d
+#### reescribe internamente la solicitud en el script index.php
+RewriteRule .* index.php [L]
+#### 
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+#### Modificacion del comportamiento
+RewriteEngine On
+ErrorDocument 400 /400.php
+ErrorDocument 401 /401.php
+ErrorDocument 403 /403.php
+ErrorDocument 404 /404.php
+ErrorDocument 405 /405.php
+ErrorDocument 500 /500.php
+ErrorDocument 503 /503.php
+RewriteCond %{REQUEST_METHOD} ^(HEAD|TRACE|DELETE|TRACK|DEBUG) [NC]
+RewriteRule ^(.*)$ - [F]
+RewriteCond %{REQUEST_URI} (wp-config\.php|config\.php|bb-config\.php|timthumb\.php|phpthumb\.php|thumb\.php|thumbs\.php|debug\.log) [NC,OR]
+RewriteCond %{REQUEST_URI} \.(htaccess|htpasswd|errordocs|logs|po|mo|ini|inc)$ [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} (;|<|>|'|"|\)|\(|%0A|%0D|%22|%27|%28|%3C|%3E|%00).*(libwww-perl|wget|python|nikto|curl|scan|java|winhttp|HTTrack|clshttp|archiver|loader|email|harvest|extract|grab|miner) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} (havij|libwww-perl|wget|python|nikto|curl|scan|java|winhttp|clshttp|loader) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} (%0A|%0D|%27|%3C|%3E|%00|%60) [NC,OR]
+RewriteCond %{HTTP_REFERER} (%0A|%0D|%27|%3C|%3E|%00) [NC,OR]
+RewriteCond %{THE_REQUEST} \?\ HTTP/ [NC,OR]
+RewriteCond %{THE_REQUEST} \/\*\ HTTP/ [NC,OR]
+RewriteCond %{HTTP_COOKIE} (`|'|"|%22|%0A|%0D|%27|%3C|%28|%3E|%00|%60).*(declare|char|set|cast|convert|delete|drop|exec|eval|insert|meta|script|select|truncate|update|union|md5|benchmark|create|alter|order|encode|if|and|or).* [NC,OR]
+RewriteCond %{QUERY_STRING} (`|'|"|%22|%0A|%0D|%27|%3C|%28|%3E|%00|%60).*(declare|char|set|cast|convert|delete|drop|exec|eval|insert|meta|script|select|truncate|update|union|md5|benchmark|create|alter|order|encode|if|and|or).* [NC,OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=http:// [NC,OR]
+RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=(\.\.//?)+ [NC,OR]
+RewriteCond %{QUERY_STRING} [a-zA-Z0-9_]=/([a-z0-9_.]//?)+ [NC,OR]
+RewriteCond %{QUERY_STRING} \=PHP[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} [NC,OR]
+RewriteCond %{QUERY_STRING} (\.\./|%2e%2e%2f|%2e%2e/|\.\.%2f|%2e\.%2f|%2e\./|\.%2e%2f|\.%2e/) [NC,OR]
+RewriteCond %{QUERY_STRING} ftp\: [NC,OR]
+RewriteCond %{QUERY_STRING} http\: [NC,OR] 
+RewriteCond %{QUERY_STRING} https\: [NC,OR]
+RewriteCond %{QUERY_STRING} \=\|w\| [NC,OR]
+RewriteCond %{QUERY_STRING} ^(.*)/self/(.*)$ [NC,OR]
+RewriteCond %{QUERY_STRING} ^(.*)cPath=http://(.*)$ [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*embed.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (<|%3C)([^e]*e)+mbed.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*object.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (<|%3C)([^o]*o)+bject.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*iframe.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (<|%3C)([^i]*i)+frame.*(>|%3E) [NC,OR] 
+RewriteCond %{QUERY_STRING} base64_encode.*\(.*\) [NC,OR]
+RewriteCond %{QUERY_STRING} base64_encode[^(]*\([^)]*\) [OR]
+RewriteCond %{QUERY_STRING} base64_(en|de)code[^(]*\([^)]*\) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} ^.*(\(|\)|<|>|%3c|%3e).* [NC,OR]
+RewriteCond %{QUERY_STRING} ^.*(\x00|\x04|\x08|\x0d|\x1b|\x20|\x3c|\x3e|\x7f).* [NC,OR]
+RewriteCond %{QUERY_STRING} (NULL|OUTFILE|LOAD_FILE) [OR]
+RewriteCond %{QUERY_STRING} (\.{1,}/)+(motd|etc|bin) [NC,OR]
+RewriteCond %{QUERY_STRING} (localhost|loopback|127\.0\.0\.1) [NC,OR]
+RewriteCond %{QUERY_STRING} (`|<|>|'|%0A|%0D|%27|%3C|%3E|%00|%60) [NC,OR]
+RewriteCond %{QUERY_STRING} concat[^\(]*\( [NC,OR]
+RewriteCond %{QUERY_STRING} union([^s]*s)+elect [NC,OR]
+RewriteCond %{QUERY_STRING} union([^a]*a)+ll([^s]*s)+elect [NC,OR]
+RewriteCond %{QUERY_STRING} \-[sdcr].*(allow_url_include|allow_url_fopen|safe_mode|disable_functions|auto_prepend_file) [NC,OR]
+RewriteCond %{QUERY_STRING} (;|<|>|'|"|\)|%0A|%0D|%22|%27|%3C|%3E|%00).*(/\*|union|select|insert|drop|delete|update|cast|create|char|convert|alter|declare|order|script|set|md5|benchmark|encode|and|or|if) [NC,OR]
+RewriteCond %{QUERY_STRING} (sp_executesql) [NC]
+RewriteRule ^(.*)$ - [F]
+</IfModule>
+#### Proteger el propio htaccess
+<Files .htaccess>
+Order allow,deny
+Deny from all
+</Files>
