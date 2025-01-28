@@ -19,7 +19,7 @@ require_once __DIR__ . '/util/Response.php';
 /**********************************************************************************************************************************/
 /*                                                     Include Controllers                                                        */
 /**********************************************************************************************************************************/
-require_once __DIR__ . '/controller/UsuariosController.php';
+require_once __DIR__ . '/controller/EjemploController.php';
 /**********************************************************************************************************************************/
 /*                                                           Loads                                                                */
 /**********************************************************************************************************************************/
@@ -40,36 +40,35 @@ $router->before('GET', '/.*', function () {
 /*                                                       Rutas Estaticas                                                          */
 /**********************************************************************************************************************************/
 // Root
-$router->get('/', function () {echo Response::sendWithCode(201, 'Root');});
+$router->get('/', function () {echo Response::sendData(201, 'Root');});
 
 /**********************************************************************************************************************************/
 /*                                                       Rutas Dinamicas                                                          */
 /**********************************************************************************************************************************/
 //si el token esta activo
-if((new UsuariosController())->verifyToken()==true){
+if((new EjemploController())->verifyToken()==true){
     /**************************************/
     // CRUD
-    $router->mount('/movies', function () use ($router) {
+    $router->mount('/ejemplos', function () use ($router) {
 
         //Vistas
-        $router->get('/', function () {echo (new UsuariosController())->listAll();});                                   //Listar Todo
-        $router->get('/list/(\d+)/(\d+)', function ($ini, $fin) {echo (new UsuariosController())->list($ini, $fin);});  //Listar
-        $router->get('/view/(\d+)', function ($id) {echo (new UsuariosController())->view($id);});                      //Ver Datos
+        $router->get('/', function () {echo (new EjemploController())->listAll();});                                   //Listar Todo
+        $router->get('/list/(\d+)/(\d+)', function ($ini, $fin) {echo (new EjemploController())->list($ini, $fin);});  //Listar
+        $router->get('/view/(\d+)', function ($id) {echo (new EjemploController())->view($id);});                      //Ver Datos
 
         //Datos
-        $router->post('/', function () {echo (new UsuariosController())->insert($_POST);});               //Crear
-        $router->post('/massive', function () {echo (new UsuariosController())->insertMassive($_POST);}); //Crear Masivo
-        $router->put('/', function () {echo (new UsuariosController())->update();});                      //Editar por put (solo modificar datos)
-        $router->post('/update', function () {echo (new UsuariosController())->update($_POST);});         //Editar por post (modificar y subir archivos)
-        $router->put('/delFiles', function () {echo (new UsuariosController())->delFiles();});            //Permite eliminar archivos
-        $router->delete('/', function () {echo (new UsuariosController())->delete();});                   //Borrar
+        $router->post('/', function () {echo (new EjemploController())->insert($_POST);});               //Crear
+        $router->put('/', function () {echo (new EjemploController())->update();});                      //Editar por put (solo modificar datos)
+        $router->post('/update', function () {echo (new EjemploController())->update($_POST);});         //Editar por post (modificar y subir archivos)
+        $router->put('/delFiles', function () {echo (new EjemploController())->delFiles();});            //Permite eliminar archivos
+        $router->delete('/', function () {echo (new EjemploController())->delete();});                   //Borrar
 
     });
 //si no hay token
 }else{
     // Login
-    $router->post('/api/auth/login', function () {echo (new UsuariosController())->login($_POST);});
-    $router->get('/api/auth/login', function () {echo (new UsuariosController())->verifyLogin();});
+    $router->post('/auth/login', function () {echo (new EjemploController())->login($_POST);});
+    $router->get('/auth/login', function () {echo (new EjemploController())->verifyLogin();});
 }
 /**********************************************************************************************************************************/
 /*                                                           Ejecutar                                                             */
